@@ -1,38 +1,50 @@
+-- Clean up existing tables in correct order
+DROP TABLE IF EXISTS Sales;
+DROP TABLE IF EXISTS Inventory;
+DROP TABLE IF EXISTS Products;
+
+-- 1. Products (The "DNA")
 CREATE TABLE Products (
-ProductId INT PRIMARY KEY IDENTITY(1,1),
-    Nombre NVARCHAR(100) NOT NULL,
-    Descripcion NVARCHAR(500),
-    PrecioBase DECIMAL(18,2) NOT NULL,
-    Color NVARCHAR(50),      -- "Azul", "Negro"
-    Material NVARCHAR(50),   -- "Piel", "Lona"
-    Talla NVARCHAR(5),      -- "S", "M", "L", "XL"
-    cierre NVARCHAR(50),    -- "Cremallera", "Velcro"
-    Coleccion NVARCHAR(50),  -- "Invierno 2026"
-    FechaCreacion DATETIME DEFAULT GETDATE()
+    ProductId INT PRIMARY KEY IDENTITY(1,1),
+    Name NVARCHAR(100) NOT NULL,
+    Description NVARCHAR(500),
+    BasePrice DECIMAL(18,2) NOT NULL,
+    Color NVARCHAR(50),
+    Material NVARCHAR(50),
+    Size NVARCHAR(10),
+    Closure NVARCHAR(50),
+    Collection NVARCHAR(50),
+    Height DECIMAL(10,2),
+    Width DECIMAL(10,2),
+    Price DECIMAL(18,2),
+    InsideTexture NVARCHAR(100),
+    InsideColor NVARCHAR(50),
+    CreatedAt DATETIME DEFAULT GETDATE()
 );
 
+-- 2. Inventory (Physical items)
 CREATE TABLE Inventory (
     InventoryId INT PRIMARY KEY IDENTITY(1,1),
-    ProductId INT NOT NULL, -- Relación con el ADN
-    SKU NVARCHAR(50) UNIQUE NOT NULL, -- Código único para esa unidad exacta
-    Estado NVARCHAR(20) DEFAULT 'En Stock', -- 'En Stock', 'Vendido', 'Reservado'
-    Ubicacion NVARCHAR(100), -- Ej: 'Almacén Central', 'Estantería B4'
-    FechaEntrada DATETIME DEFAULT GETDATE(),
+    ProductId INT NOT NULL,
+    SKU NVARCHAR(50) UNIQUE NOT NULL,
+    Status NVARCHAR(20) DEFAULT 'In Stock',
+    Location NVARCHAR(100),
+    ArrivalDate DATETIME DEFAULT GETDATE(),
     
-    -- Esto crea el vínculo entre las dos tablas
-    CONSTRAINT FK_Inventory_Products FOREIGN KEY (ProductId) 
-        REFERENCES Products(ProductId)
+    --CONSTRAINT FK_Inventory_Products FOREIGN KEY (ProductId) 
+      --  REFERENCES Products(ProductId)
 );
 
+-- 3. Sales (Records)
 CREATE TABLE Sales (
     SaleId INT PRIMARY KEY IDENTITY(1,1),
-    InventoryId INT NOT NULL, -- Relación con la unidad física
-    FechaVenta DATETIME DEFAULT GETDATE(),
-    PrecioFinal DECIMAL(18,2) NOT NULL, -- El precio real de venta (por si hubo rebaja)
-    MetodoPago NVARCHAR(50), -- 'Tarjeta', 'Efectivo', 'Bizum'
-    HuboDescuento DECIMAL(18,2) DEFAULT null,
-    ClienteId INT, 
+    InventoryId INT NOT NULL,
+    SaleDate DATETIME DEFAULT GETDATE(),
+    FinalPrice DECIMAL(18,2) NOT NULL,
+    PaymentMethod NVARCHAR(50),
+    DiscountApplied DECIMAL(18,2) DEFAULT NULL,
+    ClientId INT,
     
-    CONSTRAINT FK_Sales_Inventory FOREIGN KEY (InventoryId) 
-        REFERENCES Inventory(InventoryId)
+    --CONSTRAINT FK_Sales_Inventory FOREIGN KEY (InventoryId) 
+      --  REFERENCES Inventory(InventoryId)
 );
