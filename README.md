@@ -2,11 +2,6 @@
 
 Sistema completo de gestión de productos e inventario de calzado con API REST (.NET 10) y frontend web (Angular 17).
 
-![Dashboard de GaiaMare](imagenes_README/dashboard.png)
-![Dashboard de GaiaMare](imagenes_README/Inventario.png)
-![Dashboard de GaiaMare](imagenes_README/Productos.png)
-![Dashboard de GaiaMare](imagenes_README/Ventas.png)
-![Dashboard de GaiaMare](imagenes_README/BBDD.png)
 
 
 ---
@@ -108,6 +103,12 @@ Sistema completo de gestión de productos e inventario de calzado con API REST (
 
 
 
+### Imagenes del frontend
+![Dashboard de GaiaMare](imagenes_README/dashboard.png)
+![Dashboard de GaiaMare](imagenes_README/Inventario.png)
+![Dashboard de GaiaMare](imagenes_README/Productos.png)
+![Dashboard de GaiaMare](imagenes_README/Ventas.png)
+![Dashboard de GaiaMare](imagenes_README/BBDD.png)
 
 
 ## 🏗️ Arquitectura del Proyecto
