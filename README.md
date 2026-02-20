@@ -112,6 +112,8 @@ Sistema completo de gestión de productos e inventario de calzado con API REST (
 
 
 ## 🏗️ Arquitectura del Proyecto
+<details>
+  <summary>ver</summary>
 
 Este proyecto sigue el patrón **Arquitectura en Capas (Layered Architecture)** para separar responsabilidades y facilitar el mantenimiento.
 
@@ -188,7 +190,7 @@ GaiaMareApp/
     ├── tailwind.config.js
     └── angular.json
 ```
-
+</details>
 ---
 
 <details>
