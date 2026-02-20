@@ -7,64 +7,184 @@ Sistema completo de gestión de productos e inventario de calzado con API REST (
 ## 🚀 Tecnologías
 
 ### Backend (API REST)
-- **.NET 10** - Framework moderno de Microsoft para crear aplicaciones web de alto rendimiento
-- **C# 14.0** - Lenguaje de programación orientado a objetos con características modernas
-- **ASP.NET Core Web API** - Framework para crear APIs REST con endpoints HTTP
-- **Entity Framework Core** - ORM (Object-Relational Mapper) para trabajar con bases de datos usando objetos C#
-- **SQL Server** - Sistema de gestión de bases de datos relacional de Microsoft
-- **Swagger UI** - Interfaz web interactiva para documentar y probar APIs automáticamente
+- **.NET 10** - Framework moderno de Microsoft para aplicaciones web de alto rendimiento
+- **C# 14.0** - Lenguaje orientado a objetos con características modernas (records, pattern matching, nullable)
+- **ASP.NET Core Web API** - Framework para crear APIs REST con endpoints HTTP estándar
+- **Entity Framework Core** - ORM (Object-Relational Mapper) con LINQ, migrations y lazy/eager loading
+- **SQL Server** - Sistema de gestión de bases de datos relacional con soporte a transacciones ACID
+- **Swagger / OpenAPI** - Documentación automática e interfaz interactiva para pruebas de API
+
+### Patrones y Principios de Arquitectura
+- **Layered Architecture** - Separación en capas: API → Application → Domain → Infrastructure
+- **Clean Architecture Principles** - Dependencias apuntando hacia el dominio (Domain Layer sin dependencias externas)
+- **Dependency Injection (DI)** - Inyección de dependencias nativa de ASP.NET Core
+- **DTO Pattern** - Data Transfer Objects para desacoplar la API del modelo de dominio
+- **Repository Pattern** - Acceso a datos abstraído a través de EF Core `DbContext`
+- **Service Layer** - Lógica de negocio encapsulada en `ProductService` y `SalesService`
+
+### Estándares y Buenas Prácticas
+- **RESTful API Design** - Endpoints con métodos HTTP correctos (GET, POST) y códigos de respuesta estándar
+- **Async/Await** - Programación asíncrona en toda la cadena (controladores, servicios, acceso a datos)
+- **JSON camelCase** - Serialización consistente entre backend y frontend
+- **CORS** - Configuración de políticas de acceso entre orígenes para integración frontend-backend
+- **Separation of Concerns** - Cada capa tiene responsabilidad única y bien definida
 
 ### Frontend (Web App)
-- **Angular 17** - Framework moderno para aplicaciones web SPA
-- **TypeScript** - Superset tipado de JavaScript
+- **Angular 19** - Framework moderno para aplicaciones web SPA (Single Page Application)
+- **TypeScript** - Superset tipado de JavaScript con interfaces, generics y decoradores
 - **Tailwind CSS v3** - Framework CSS utility-first para diseño rápido y responsive
-- **RxJS** - Programación reactiva para manejo de datos asíncronos
-- **Standalone Components** - Arquitectura moderna de Angular sin módulos
+- **RxJS** - Programación reactiva con Observables para manejo de datos asíncronos
+- **Standalone Components** - Arquitectura moderna de Angular sin NgModules
+- **HttpClient** - Cliente HTTP con interceptores para consumir la API REST
+- **Angular Forms (FormsModule)** - Binding bidireccional con `ngModel` para formularios reactivos
+- **ChangeDetectionStrategy** - Detección de cambios optimizada con `ChangeDetectorRef`
 
 ---
 
-## ⚙️ Configuración
+## ✨ Características Implementadas
 
-### Backend (.NET API)
+### Backend
+✅ Arquitectura en capas  
+✅ Inyección de dependencias  
+✅ Entity Framework Core con SQL Server  
+✅ DTOs para transferencia de datos segura  
+✅ Serialización JSON en camelCase  
+✅ CORS habilitado para frontends  
+✅ Archivos estáticos (imágenes) desde `wwwroot/`  
+✅ Swagger UI en modo desarrollo  
+✅ Endpoints REST completos (GET, POST, filtros)
 
-1. **Configurar base de datos**
-   - Actualiza la cadena de conexión en `GaiaMare.API/appsettings.json`:
-     ```json
-     "ConnectionStrings": {
-       "DefaultConnection": "Server=localhost;Database=GaiaMareDB;Trusted_Connection=True;TrustServerCertificate=True;"
-     }
-     ```
+### Frontend
+✅ Dashboard con KPIs en tiempo real  
+✅ Gestión de productos con filtros  
+✅ Control de inventario por SKU y estado  
+✅ Registro de ventas  
+✅ Diseño responsive (móvil, tablet, desktop)  
+✅ Change Detection optimizado para datos dinámicos  
+✅ Tailwind CSS para estilos modernos  
+✅ Componentes standalone sin módulos
 
-2. **Crear base de datos**
-   - Ejecuta el script SQL de `BBDD/TablasCreacion.sql` en SQL Server Management Studio
 
-3. **Ejecutar la API**
-   - Abre la solución en Visual Studio 2022
-   - Presiona **F5** o ejecuta el proyecto `GaiaMare.API`
-   - La API estará disponible en: `https://localhost:7230`
-   - Swagger UI: `https://localhost:7230/swagger/index.html`
 
-### Frontend (Angular)
+### Las 4 capas del proyecto y por qué existen
 
-1. **Instalar dependencias**
-   ```bash
-   cd gaia-mare-web
-   npm install
-   ```
+| Proyecto | Responsabilidad | Ejemplo en GaiaMare |
+|---|---|---|
+| `GaiaMare.API` | Recibe las peticiones HTTP y devuelve respuestas | `ProductsController` |
+| `GaiaMare.Application` | Lógica de negocio (reglas, validaciones) | `ProductService` |
+| `GaiaMare.Domain` | Modelos de datos puros, sin lógica | `Product`, `ProductCreateDto` |
+| `GaiaMare.Infrastructure` | Acceso a la base de datos | `ApplicationDbContext` |
 
-2. **Ejecutar el servidor de desarrollo**
-   ```bash
-   ng serve
-   ```
-   - La aplicación estará disponible en: `http://localhost:4200`
-
-3. **Ejecutar con HTTPS (opcional)**
-   ```bash
-   ng serve --configuration ssl
-   ```
-   - Requiere certificados SSL en la raíz del proyecto (`localhost.pem`, `localhost-key.pem`)
+> **¿Por qué separarlo?** Si mañana cambias SQL Server por MongoDB, solo tocas `Infrastructure`. Si el frontend cambia, solo tocas `API`. El resto no se mueve.
 
 ---
+
+### Conceptos clave
+
+- **Controlador** → Clase que escucha rutas HTTP. `ProductsController` escucha `/api/products` y decide qué hacer con cada `GET`, `POST`, etc.
+
+- **Service** → Contiene la lógica real. El controlador *delega* en `ProductService` para crear productos. Así el controlador queda limpio y el service es reutilizable.
+
+- **DTO** (Data Transfer Object) → `ProductCreateDto` es lo que el frontend *envía*. Es diferente de `Product` (la entidad de base de datos) para no exponer campos internos.
+
+- **DbContext** → `ApplicationDbContext` es el puente entre C# y SQL Server. Define las tablas (`Products`, `Inventory`, `Sales`) y gestiona las consultas via Entity Framework.
+
+- **Inyección de Dependencias** → En `Program.cs` se registran `ApplicationDbContext` y `ProductService`. ASP.NET los crea y los pasa automáticamente a quien los necesite.
+
+---
+
+### Librerías (NuGet) utilizadas
+
+- **`Microsoft.EntityFrameworkCore.SqlServer`** → ORM que permite escribir consultas en C# en lugar de SQL puro
+- **`Microsoft.EntityFrameworkCore.Tools`** → Herramientas para gestionar migraciones desde la consola
+- **`Swashbuckle.AspNetCore`** → Genera automáticamente la interfaz de Swagger en `/swagger`
+
+
+
+![Dashboard de GaiaMare](imagenes_README/dashboard.png)
+
+## 🏗️ Arquitectura del Proyecto
+
+Este proyecto sigue el patrón **Arquitectura en Capas (Layered Architecture)** para separar responsabilidades y facilitar el mantenimiento.
+
+```
+┌─────────────────────────────────────────┐
+│   🖥️  FRONTEND (Angular 17)             │
+│   - Dashboard, Productos, Inventario    │
+│   - Componentes standalone               │
+│   - Tailwind CSS para estilos           │
+│   http://localhost:4200                  │
+└──────────────┬──────────────────────────┘
+               │ HTTP Request (JSON)
+               ▼
+┌─────────────────────────────────────────┐
+│  🎯 API LAYER (GaiaMare.API)            │
+│  - ProductsController                    │ ← Controladores REST
+│  - InventoryController                   │   Reciben peticiones HTTP
+│  - SalesController                       │   Retornan JSON (camelCase)
+│  - Program.cs (Configuración)           │
+│  https://localhost:7230                  │
+└──────────────┬──────────────────────────┘
+               │ Inyección de Dependencias
+               ▼
+┌─────────────────────────────────────────┐
+│  💼 APPLICATION LAYER                    │
+│  (GaiaMare.Application)                  │
+│  - ProductService                        │ ← Lógica de negocio
+│  - Operaciones complejas                 │   Reutilizable
+│  - Validaciones                          │   Testeable
+└──────────────┬──────────────────────────┘
+               │ Usa
+               ▼
+┌─────────────────────────────────────────┐
+│  🗄️ INFRASTRUCTURE LAYER                │
+│  (GaiaMare.Infrastructure)               │
+│  - ApplicationDbContext                  │ ← Acceso a datos
+│  - Configuración EF Core                 │   Comunicación con BD
+│  - DbSet<Product, Inventory, Sale>      │
+└──────────────┬──────────────────────────┘
+               │ Mapea a
+               ▼
+┌─────────────────────────────────────────┐
+│  📋 DOMAIN LAYER (GaiaMare.Domain)      │
+│  - Product, Inventory, Sale              │ ← Entidades de negocio
+│  - DTOs (ProductStockDto, etc.)         │   Sin dependencias
+│  - Modelos puros                         │
+└─────────────────────────────────────────┘
+               │ Se persisten en
+               ▼
+┌─────────────────────────────────────────┐
+│  💾 SQL SERVER DATABASE                 │
+│  - Tabla Products                        │ ← Base de datos
+│  - Tabla Inventory                       │   Persistencia
+│  - Tabla Sales                           │
+└─────────────────────────────────────────┘
+```
+
+### Estructura de Carpetas
+
+```
+GaiaMareApp/
+├── GaiaMare.API/              → Controladores y configuración de la API
+├── GaiaMare.Application/      → Lógica de negocio (ProductService)
+├── GaiaMare.Domain/           → Modelos, entidades y DTOs
+├── GaiaMare.Infrastructure/   → DbContext y configuración de EF Core
+├── BBDD/                      → Scripts SQL
+└── gaia-mare-web/             → Frontend Angular
+    ├── src/
+    │   ├── app/
+    │   │   ├── components/    → Dashboard, Products, Inventory, Sales
+    │   │   ├── services/      → HTTP services (ProductService, etc.)
+    │   │   └── models/        → TypeScript interfaces
+    │   └── styles.css         → Tailwind CSS
+    ├── tailwind.config.js
+    └── angular.json
+```
+
+---
+
+<details>
+  <summary>APIs</summary>
 
 ## 📡 Endpoints de la API
 
@@ -159,212 +279,50 @@ Content-Type: application/json
 ```
 *Nota: Al registrar una venta, el estado del ítem de inventario cambia automáticamente a "Vendido"*
 
-## 🏗️ Arquitectura del Proyecto
+</details>
 
-Este proyecto sigue el patrón **Arquitectura en Capas (Layered Architecture)** para separar responsabilidades y facilitar el mantenimiento.
+<details>
+  <summary>VConfiguración</summary>
 
-```
-┌─────────────────────────────────────────┐
-│   🖥️  FRONTEND (Angular 17)             │
-│   - Dashboard, Productos, Inventario    │
-│   - Componentes standalone               │
-│   - Tailwind CSS para estilos           │
-│   http://localhost:4200                  │
-└──────────────┬──────────────────────────┘
-               │ HTTP Request (JSON)
-               ▼
-┌─────────────────────────────────────────┐
-│  🎯 API LAYER (GaiaMare.API)            │
-│  - ProductsController                    │ ← Controladores REST
-│  - InventoryController                   │   Reciben peticiones HTTP
-│  - SalesController                       │   Retornan JSON (camelCase)
-│  - Program.cs (Configuración)           │
-│  https://localhost:7230                  │
-└──────────────┬──────────────────────────┘
-               │ Inyección de Dependencias
-               ▼
-┌─────────────────────────────────────────┐
-│  💼 APPLICATION LAYER                    │
-│  (GaiaMare.Application)                  │
-│  - ProductService                        │ ← Lógica de negocio
-│  - Operaciones complejas                 │   Reutilizable
-│  - Validaciones                          │   Testeable
-└──────────────┬──────────────────────────┘
-               │ Usa
-               ▼
-┌─────────────────────────────────────────┐
-│  🗄️ INFRASTRUCTURE LAYER                │
-│  (GaiaMare.Infrastructure)               │
-│  - ApplicationDbContext                  │ ← Acceso a datos
-│  - Configuración EF Core                 │   Comunicación con BD
-│  - DbSet<Product, Inventory, Sale>      │
-└──────────────┬──────────────────────────┘
-               │ Mapea a
-               ▼
-┌─────────────────────────────────────────┐
-│  📋 DOMAIN LAYER (GaiaMare.Domain)      │
-│  - Product, Inventory, Sale              │ ← Entidades de negocio
-│  - DTOs (ProductStockDto, etc.)         │   Sin dependencias
-│  - Modelos puros                         │
-└─────────────────────────────────────────┘
-               │ Se persisten en
-               ▼
-┌─────────────────────────────────────────┐
-│  💾 SQL SERVER DATABASE                 │
-│  - Tabla Products                        │ ← Base de datos
-│  - Tabla Inventory                       │   Persistencia
-│  - Tabla Sales                           │
-└─────────────────────────────────────────┘
-```
+## ⚙️ Configuración
 
-### Estructura de Carpetas
+### Backend (.NET API)
 
-```
-GaiaMareApp/
-├── GaiaMare.API/              → Controladores y configuración de la API
-├── GaiaMare.Application/      → Lógica de negocio (ProductService)
-├── GaiaMare.Domain/           → Modelos, entidades y DTOs
-├── GaiaMare.Infrastructure/   → DbContext y configuración de EF Core
-├── BBDD/                      → Scripts SQL
-└── gaia-mare-web/             → Frontend Angular
-    ├── src/
-    │   ├── app/
-    │   │   ├── components/    → Dashboard, Products, Inventory, Sales
-    │   │   ├── services/      → HTTP services (ProductService, etc.)
-    │   │   └── models/        → TypeScript interfaces
-    │   └── styles.css         → Tailwind CSS
-    ├── tailwind.config.js
-    └── angular.json
-```
+1. **Configurar base de datos**
+   - Actualiza la cadena de conexión en `GaiaMare.API/appsettings.json`:
+     ```json
+     "ConnectionStrings": {
+       "DefaultConnection": "Server=localhost;Database=GaiaMareDB;Trusted_Connection=True;TrustServerCertificate=True;"
+     }
+     ```
 
----
+2. **Crear base de datos**
+   - Ejecuta el script SQL de `BBDD/TablasCreacion.sql` en SQL Server Management Studio
 
-## ✨ Características Implementadas
+3. **Ejecutar la API**
+   - Abre la solución en Visual Studio 2022
+   - Presiona **F5** o ejecuta el proyecto `GaiaMare.API`
+   - La API estará disponible en: `https://localhost:7230`
+   - Swagger UI: `https://localhost:7230/swagger/index.html`
 
-### Backend
-✅ Arquitectura en capas  
-✅ Inyección de dependencias  
-✅ Entity Framework Core con SQL Server  
-✅ DTOs para transferencia de datos segura  
-✅ Serialización JSON en camelCase  
-✅ CORS habilitado para frontends  
-✅ Archivos estáticos (imágenes) desde `wwwroot/`  
-✅ Swagger UI en modo desarrollo  
-✅ Endpoints REST completos (GET, POST, filtros)
+### Frontend (Angular)
 
-### Frontend
-✅ Dashboard con KPIs en tiempo real  
-✅ Gestión de productos con filtros  
-✅ Control de inventario por SKU y estado  
-✅ Registro de ventas  
-✅ Diseño responsive (móvil, tablet, desktop)  
-✅ Change Detection optimizado para datos dinámicos  
-✅ Tailwind CSS para estilos modernos  
-✅ Componentes standalone sin módulos
+1. **Instalar dependencias**
+   ```bash
+   cd gaia-mare-web
+   npm install
+   ```
 
----
+2. **Ejecutar el servidor de desarrollo**
+   ```bash
+   ng serve
+   ```
+   - La aplicación estará disponible en: `http://localhost:4200`
 
-## 🎨 Capturas de Pantalla
+3. **Ejecutar con HTTPS (opcional)**
+   ```bash
+   ng serve --configuration ssl
+   ```
+   - Requiere certificados SSL en la raíz del proyecto (`localhost.pem`, `localhost-key.pem`)
 
-### Dashboard
-- Resumen general con KPIs
-- Lista de productos con stock
-- Datos actualizados en tiempo real
-
-### Productos
-- Catálogo con tarjetas visuales
-- Filtros por colección y material
-- Visualización de imágenes
-
-### Inventario
-- Control de stock por SKU
-- Filtros por estado (Stock / Vendido)
-- Búsqueda rápida
-
-### Ventas
-- Registro de nuevas ventas
-- Selección de ítems disponibles
-- Historial de ventas
-
----
-
-## 🔧 Configuración Avanzada
-
-### Gestión de Inventario con SKUs Automáticos
-
-El sistema genera automáticamente SKUs únicos al crear productos o añadir stock:
-
-**Formato de SKU:** `GAIA-{ProductID:4 dígitos}-{Secuencia:3 dígitos}`
-
-**Ejemplos:**
-- `GAIA-0002-001` → Primera unidad del producto 2
-- `GAIA-0002-002` → Segunda unidad del producto 2
-- `GAIA-0008-010` → Décima unidad del producto 8
-
-**Flujo:**
-1. **Crear producto** → Se crea automáticamente 1 ítem en inventario con SKU `GAIA-{ID}-001`
-2. **Añadir stock** → El usuario especifica cantidad (ej: 5), el sistema genera 5 SKUs secuenciales
-3. **Vender ítem** → El estado cambia de "Stock" a "Vendido"
-
-### Literales de Estado del Inventario
-- **`"Stock"`** → Disponible para venta
-- **`"Vendido"`** → Ya vendido
-
-Estos literales están configurados en:
-- **Backend**: `ProductService.cs`, `SalesService.cs`, `InventoryController.cs`
-- **Frontend**: `DashboardComponent.ts`, `InventoryComponent.ts`, `SalesComponent.ts`
-
-### JSON camelCase
-La API devuelve JSON en formato camelCase (`productId`, `totalStock`) configurado en `Program.cs`:
-```csharp
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
-    });
-```
-
----
-
-## 📝 Notas de Desarrollo
-
-- **Change Detection**: Se usa `ChangeDetectorRef` en los componentes Angular para forzar la actualización de la vista cuando llegan datos asíncronos
-- **HTTPS**: La API corre en `https://localhost:7230`, el frontend puede correr en HTTP o HTTPS
-- **Imágenes**: Las imágenes se sirven desde `GaiaMare.API/wwwroot/images/`
-- **CORS**: Habilitado en la API con política `AllowAll` para desarrollo
-
----
-
-## 🚨 Troubleshooting
-
-### "No se muestran datos en el frontend"
-1. Verifica que la API esté corriendo en `https://localhost:7230`
-2. Revisa la consola del navegador (F12) para errores HTTP
-3. Comprueba que la base de datos tenga datos con `SELECT * FROM Products`
-
-### "Error de CORS"
-- Asegúrate de que `app.UseCors("AllowAll")` esté antes de `app.MapControllers()` en `Program.cs`
-
-### "Tailwind CSS no funciona"
-1. Verifica que `tailwind.config.js` existe en la raíz de `gaia-mare-web`
-2. Reinicia `ng serve` completamente
-3. Recarga el navegador sin caché: `Ctrl + Shift + R`
-
----
-
-## 📚 Recursos Adicionales
-
-- [Documentación de .NET](https://learn.microsoft.com/es-es/dotnet/)
-- [Angular Documentation](https://angular.io/docs)
-- [Entity Framework Core](https://learn.microsoft.com/es-es/ef/core/)
-- [Tailwind CSS](https://tailwindcss.com/docs)
-
----
-
-## 👨‍💻 Autor
-
-Proyecto desarrollado para gestión de inventario de GaiaMare.
-
-## 📄 Licencia
-
-Este proyecto es privado y de uso interno.
+</details>
